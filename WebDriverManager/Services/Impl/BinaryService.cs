@@ -12,7 +12,7 @@ namespace WebDriverManager.Services.Impl
 {
     public class BinaryService : IBinaryService
     {
-        public IWebProxy Proxy { get; set; }
+        public IWebProxy Proxy { get; set; } = WebRequest.DefaultWebProxy;
 
         public string SetupBinary(string url, string zipDestination, string binDestination, string binaryName)
         {
@@ -48,19 +48,9 @@ namespace WebDriverManager.Services.Impl
         public string DownloadZip(string url, string destination)
         {
             if (File.Exists(destination)) return destination;
-            if (Proxy != null)
+            using (var webClient = new WebClient() {Proxy = Proxy})
             {
-                using (var webClient = new WebClient() {Proxy = Proxy})
-                {
-                    webClient.DownloadFile(new Uri(url), destination);
-                }
-            }
-            else
-            {
-                using (var webClient = new WebClient())
-                {
-                    webClient.DownloadFile(new Uri(url), destination);
-                }
+                webClient.DownloadFile(new Uri(url), destination);
             }
 
             return destination;
